@@ -1,0 +1,30 @@
+language: python
+
+python:
+- '3.5'
+
+install:
+- pip install -r dev-requirements.txt
+
+script:
+- pytest tests/ -v
+- pycodestyle image_processing/*
+
+after_script:
+- py.test --cov-report term --cov=. --ignore=tests/* --cov-report=html
+- coverage xml
+- python-codacy-coverage -r coverage.xml
+
+notification:
+  email: false
+
+before_deploy:
+  - echo 'Beggining deploy...'
+  - python3 setup.py build
+  - python3 setup.py sdist bdist_wheel
+
+deploy:
+  - provider: script
+    script: bash deploy.sh deploy
+    on:
+      branch: master
