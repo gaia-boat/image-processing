@@ -1,5 +1,8 @@
 #! /bin/bash
 
-cmake .
+mkdir -p bin
+mkdir -p build
 
-make
+cmake -S . -B ./build
+
+make -C ./build/
