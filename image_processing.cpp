@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#define IMAGE_PATH "./data/trash_on_water.jpg"
+#define IMAGE_PATH "./data/plastic-trash.jpg"
 
 using namespace cv;
 
@@ -21,7 +21,6 @@ int main(int argc, char **argv) {
     double sum_pixels = 0.0;
     for(int i = 0; i < image.rows; i++) {
         for(int j = 0; j < image.cols; j++) {
-            printf("%d\n", (int)image.at<uchar>(i, j));
             sum_pixels += (int)image.at<uchar>(i, j);
         }
     }
@@ -30,8 +29,9 @@ int main(int argc, char **argv) {
 
     printf("Avg of pixels: %lf \n", avg_pixels);
 
-    imshow("Output", image);
+    threshold(image, image, avg_pixels, 255, THRESH_BINARY);
 
+    imshow("Output", image);
     waitKey(0);
 
     return 0;
