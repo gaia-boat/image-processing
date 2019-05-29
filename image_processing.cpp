@@ -31,8 +31,17 @@ int main(int argc, char **argv) {
 
     threshold(image, image, avg_pixels, 255, THRESH_BINARY);
 
-    imshow("Output", image);
-    waitKey(0);
+    int erosion_size = 1;
+
+
+    Mat element = getStructuringElement( MORPH_RECT,
+                       Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                       Point( erosion_size, erosion_size ) );
+
+    erode(image, image, element);
+
+    /* imshow("Output", image); */
+    /* waitKey(0); */
 
     return 0;
 
