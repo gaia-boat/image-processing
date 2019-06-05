@@ -4,15 +4,18 @@
 #include <iostream>
 #include <fstream>
 
-#define IMAGE_PATH "./data/plastic-trash.jpg"
-#define OUTPUT_IMAG "./data/binary_trash3.png"
+#define IMAGE_PATH "./data/trash_on_water_no_sky.jpg"
+#define OUTPUT_IMAG "./data/trash_on_water_no_sky/binary_by_mean_with_erosion.png"
+#define IMAGE_HEIGHT 90 
+#define IMAGE_WIDTH 160
+#define MAX_PIXEL_VAL 255
 
 using namespace cv;
 
 
 int mode(Mat image) {
     // get the highest value on the list
-    int max = 255;
+    int max = MAX_PIXEL_VAL;
 
     int t = max + 1;
     int *count;
@@ -60,8 +63,8 @@ void write_bin(Mat image) {
 
 }
 
-std::array<int, 90> array_of_mode(Mat image) {
-    std::array<int, 90> rows_mode;
+std::array<int, IMAGE_HEIGHT> array_of_mode(Mat image) {
+    std::array<int, IMAGE_HEIGHT> rows_mode;
 
     for(int i = 0; i < image.rows; i++) {
         int mode_val;
@@ -75,7 +78,7 @@ std::array<int, 90> array_of_mode(Mat image) {
 
 double avg_by_mode(Mat image) {
 
-    std::array<int, 90> rows_mode;
+    std::array<int, IMAGE_HEIGHT> rows_mode;
     rows_mode = array_of_mode(image);
 
     double sum_pixels = 0.0;
@@ -92,7 +95,7 @@ double avg_by_mode(Mat image) {
 
 double avg_by_mean(Mat image) {
 
-    std::array<int, 90> rows_mode;
+    std::array<int, IMAGE_HEIGHT> rows_mode;
     double sum_pixels = 0.0;
 
     const int height = image.size().height;
@@ -113,16 +116,10 @@ double avg_by_mean(Mat image) {
 
 int mode_of_mode(Mat image) {
 
-    std::array<int, 90> rows_mode;
+    std::array<int, IMAGE_HEIGHT> rows_mode;
     rows_mode = array_of_mode(image); 
 
-    for(int i = 0; i < rows_mode.size(); i++) {
-        printf("%d ", rows_mode[i]);
-    }
-
-    printf("\n\n");
-
-    int max = 255;
+    int max = MAX_PIXEL_VAL;
 
     int t = max + 1;
     int *count;
@@ -144,16 +141,28 @@ int mode_of_mode(Mat image) {
         }
     }
 
+    free(count);
+
     return mode;
 
 }
 
+void erosion(Mat image) {
+
+    int erosion_size = 1;
+    Mat element = getStructuringElement( MORPH_RECT,
+                       Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                       Point( erosion_size, erosion_size ) );
+    erode(image, image, element);
+}
+
 int main(int argc, char **argv) {
     String image_name(IMAGE_PATH);
+    Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     Mat image;
     image = imread(image_name, 0);
-    resize(image, image, cv::Size(), 0.25, 0.25);
+    resize(image, image, img_size);
 
     const int height = image.size().height;
     const int width = image.size().width;
@@ -161,24 +170,18 @@ int main(int argc, char **argv) {
     printf("Height: %d\n", height);
     printf("Width: %d\n", width);
 
-    /* double avg_pixels = avg_by_mean(image); */ 
+    double avg_pixels = avg_by_mean(image); 
     /* double avg_pixels = avg_by_mode(image); */ 
-    double avg_pixels = mode_of_mode(image); 
+    /* int avg_pixels = mode_of_mode(image); */ 
 
     printf("Avg of pixels: %lf \n", avg_pixels);
 
     threshold(image, image, avg_pixels, 255, THRESH_BINARY);
 
-    /* int erosion_size = 1; */
+    erosion(image);
 
-
-    /* Mat element = getStructuringElement( MORPH_RECT, */
-    /*                    Size( 2*erosion_size + 1, 2*erosion_size+1 ), */
-    /*                    Point( erosion_size, erosion_size ) ); */
-
-    /* erode(image, image, element); */
-
-    imshow("Output", image);
+    /* imshow("Output", image); */
+    imwrite(OUTPUT_IMAG, image);
     waitKey(0);
 
     return 0;
