@@ -3,11 +3,12 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <raspicam/raspicam.h>
 
 #define IMAGE_PATH "./data/trash_on_water_no_sky.jpg"
-#define OUTPUT_IMAG "./data/trash_on_water_no_sky/binary_by_mean_with_erosion.png"
-#define IMAGE_HEIGHT 90 
-#define IMAGE_WIDTH 160
+#define OUTPUT_IMAG "./data/THRESH_BINARY_INV/trash_on_water_no_sky/binary_by_mode_of_row_mode_no_erosion.png"
+#define IMAGE_HEIGHT 360  
+#define IMAGE_WIDTH 420 
 #define MAX_PIXEL_VAL 255
 
 using namespace cv;
@@ -156,33 +157,59 @@ void erosion(Mat image) {
     erode(image, image, element);
 }
 
+void get_image() {
+
+}
+
 int main(int argc, char **argv) {
-    String image_name(IMAGE_PATH);
-    Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT);
+    
+    raspicam::RaspiCam Camera;
 
-    Mat image;
-    image = imread(image_name, 0);
-    resize(image, image, img_size);
+    if(!Camera.open()) {
+        cerr << "Error opening camera" << endl;
+        return -1;
+    }
 
-    const int height = image.size().height;
-    const int width = image.size().width;
+    Camera.grab()
 
-    printf("Height: %d\n", height);
-    printf("Width: %d\n", width);
+	unsigned char *data=new unsigned char[  Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB )];
 
-    double avg_pixels = avg_by_mean(image); 
-    /* double avg_pixels = avg_by_mode(image); */ 
+    Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB);
+
+    Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB)
+
+    imshow("image", data);
+
+    waitKey(0);
+
+
+
+    /* Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT); */
+
+    /* Mat image; */
+    /* image = imread(image_name, 0); */
+    /* resize(image, image, img_size); */
+
+    /* const int height = image.size().height; */
+    /* const int width = image.size().width; */
+
+    /* printf("Height: %d\n", height); */
+    /* printf("Width: %d\n", width); */
+
+    /* /1* double avg_pixels = avg_by_mean(image); *1/ */ 
+    /* /1* double avg_pixels = avg_by_mode(image); *1/ */ 
     /* int avg_pixels = mode_of_mode(image); */ 
 
-    printf("Avg of pixels: %lf \n", avg_pixels);
+    /* printf("Avg of pixels: %lf \n", avg_pixels); */
+    /* /1* printf("Avg of pixels: %d \n", avg_pixels); *1/ */
 
-    threshold(image, image, avg_pixels, 255, THRESH_BINARY);
+    /* threshold(image, image, avg_pixels, 255, THRESH_BINARY_INV); */
 
-    erosion(image);
+    /* /1* erosion(image); *1/ */
 
-    /* imshow("Output", image); */
-    imwrite(OUTPUT_IMAG, image);
-    waitKey(0);
+    /* /1* imshow("Output", image); *1/ */
+    /* imwrite(OUTPUT_IMAG, image); */
+    /* waitKey(0); */
 
     return 0;
 
