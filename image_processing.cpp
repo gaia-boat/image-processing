@@ -3,15 +3,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <raspicam/raspicam.h>
+/* #include <raspicam/raspicam.h> */
 
-#define IMAGE_PATH "./data/trash_on_water_no_sky.jpg"
+#define IMAGE_PATH "./data/plastic-trash.jpg"
 #define OUTPUT_IMAG "./data/THRESH_BINARY_INV/trash_on_water_no_sky/binary_by_mode_of_row_mode_no_erosion.png"
-#define IMAGE_HEIGHT 360  
-#define IMAGE_WIDTH 420 
+#define IMAGE_HEIGHT 360
+#define IMAGE_WIDTH 420
 #define MAX_PIXEL_VAL 255
 
 using namespace cv;
+using namespace std;
 
 
 int mode(Mat image) {
@@ -46,7 +47,7 @@ int mode(Mat image) {
 }
 
 void write_bin(Mat image) {
-    std::ofstream filebin;
+    ofstream filebin;
 
     filebin.open("bins.txt");
 
@@ -58,14 +59,14 @@ void write_bin(Mat image) {
             filebin << (int)image.at<uchar>(i, j) << " ";
         }
         filebin << "\n";
-    } 
+    }
 
     filebin.close();
 
 }
 
-std::array<int, IMAGE_HEIGHT> array_of_mode(Mat image) {
-    std::array<int, IMAGE_HEIGHT> rows_mode;
+array<int, IMAGE_HEIGHT> array_of_mode(Mat image) {
+    array<int, IMAGE_HEIGHT> rows_mode;
 
     for(int i = 0; i < image.rows; i++) {
         int mode_val;
@@ -79,14 +80,14 @@ std::array<int, IMAGE_HEIGHT> array_of_mode(Mat image) {
 
 double avg_by_mode(Mat image) {
 
-    std::array<int, IMAGE_HEIGHT> rows_mode;
+    array<int, IMAGE_HEIGHT> rows_mode;
     rows_mode = array_of_mode(image);
 
     double sum_pixels = 0.0;
-    
+
     for(int i = 0; i < rows_mode.size(); i++) {
         sum_pixels += rows_mode[i];
-        
+
     }
 
     double avg_pixels = sum_pixels / rows_mode.size();
@@ -96,7 +97,7 @@ double avg_by_mode(Mat image) {
 
 double avg_by_mean(Mat image) {
 
-    std::array<int, IMAGE_HEIGHT> rows_mode;
+    array<int, IMAGE_HEIGHT> rows_mode;
     double sum_pixels = 0.0;
 
     const int height = image.size().height;
@@ -112,13 +113,13 @@ double avg_by_mean(Mat image) {
     double avg_pixels = sum_pixels / (height * width);
 
     return avg_pixels;
-    
+
 }
 
 int mode_of_mode(Mat image) {
 
-    std::array<int, IMAGE_HEIGHT> rows_mode;
-    rows_mode = array_of_mode(image); 
+    array<int, IMAGE_HEIGHT> rows_mode;
+    rows_mode = array_of_mode(image);
 
     int max = MAX_PIXEL_VAL;
 
@@ -157,59 +158,60 @@ void erosion(Mat image) {
     erode(image, image, element);
 }
 
-void get_image() {
+/* void get_image_form_rasp() { */
+/*     raspicam::RaspiCam Camera; */
 
+/*     if(!Camera.open()) { */
+/*         cerr << "Error opening camera" << endl; */
+/*         return -1; */
+/*     } */
+
+/*     Camera.grab() */
+
+/* 	unsigned char *data=new unsigned char[  Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB )]; */
+
+/*     Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB); */
+
+/*     Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB) */
+/* } */
+
+void apply_blur(Mat image){
+
+    Size k(7, 7);
+
+    GaussianBlur(image, image, k, 0);
 }
 
+
 int main(int argc, char **argv) {
-    
-    raspicam::RaspiCam Camera;
 
-    if(!Camera.open()) {
-        cerr << "Error opening camera" << endl;
-        return -1;
-    }
+    Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    Camera.grab()
+    Mat image;
+    image = imread(IMAGE_PATH, 0);
+    resize(image, image, img_size);
 
-	unsigned char *data=new unsigned char[  Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB )];
+    const int height = image.size().height;
+    const int width = image.size().width;
 
-    Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB);
+    printf("Height: %d\n", height);
+    printf("Width: %d\n", width);
 
-    Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB)
-
-    imshow("image", data);
-
-    waitKey(0);
-
-
-
-    /* Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT); */
-
-    /* Mat image; */
-    /* image = imread(image_name, 0); */
-    /* resize(image, image, img_size); */
-
-    /* const int height = image.size().height; */
-    /* const int width = image.size().width; */
-
-    /* printf("Height: %d\n", height); */
-    /* printf("Width: %d\n", width); */
-
-    /* /1* double avg_pixels = avg_by_mean(image); *1/ */ 
-    /* /1* double avg_pixels = avg_by_mode(image); *1/ */ 
-    /* int avg_pixels = mode_of_mode(image); */ 
+    /* double avg_pixels = avg_by_mean(image); */
+    /* double avg_pixels = avg_by_mode(image); */
+    /* int avg_pixels = mode_of_mode(image); */
 
     /* printf("Avg of pixels: %lf \n", avg_pixels); */
-    /* /1* printf("Avg of pixels: %d \n", avg_pixels); *1/ */
+    /* printf("Avg of pixels: %d \n", avg_pixels); */
 
     /* threshold(image, image, avg_pixels, 255, THRESH_BINARY_INV); */
 
-    /* /1* erosion(image); *1/ */
+    /* erosion(image); */
 
-    /* /1* imshow("Output", image); *1/ */
+    apply_blur(image);
+    imshow("Output", image);
     /* imwrite(OUTPUT_IMAG, image); */
-    /* waitKey(0); */
+    waitKey(0);
 
     return 0;
 
