@@ -1,3 +1,4 @@
+/* #include <boost/python.hpp> */
 #include <opencv2/opencv.hpp>
 #include <stdio.h>
 #include <string>
@@ -13,6 +14,8 @@
 
 using namespace cv;
 using namespace std;
+
+/* namespace py = boost::python; */
 
 
 int mode(Mat image) {
@@ -153,8 +156,7 @@ void erosion(Mat image) {
 
     int erosion_size = 1;
     Mat element = getStructuringElement( MORPH_RECT,
-                       Size( 2*erosion_size + 1, 2*erosion_size+1 ),
-                       Point( erosion_size, erosion_size ) );
+                       Size( 3, 3 ));
     erode(image, image, element);
 }
 
@@ -175,11 +177,23 @@ void erosion(Mat image) {
 /*     Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB) */
 /* } */
 
+void dilation(Mat image){
+    Mat element = getStructuringElement( MORPH_RECT,
+                       Size( 3, 3 ));
+    dilate(image, image, element);
+} 
+
 void apply_blur(Mat image){
 
     Size k(7, 7);
 
     GaussianBlur(image, image, k, 0);
+}
+
+void apply_canny(Mat image){
+    double threshold1 = 50; 
+    double threshold2 = 100;
+    Canny(image, image, threshold1, threshold2);
 }
 
 
@@ -191,24 +205,16 @@ int main(int argc, char **argv) {
     image = imread(IMAGE_PATH, 0);
     resize(image, image, img_size);
 
-    const int height = image.size().height;
-    const int width = image.size().width;
+    const int height = image.size().height; const int width = image.size().width;
 
     printf("Height: %d\n", height);
     printf("Width: %d\n", width);
 
-    /* double avg_pixels = avg_by_mean(image); */
-    /* double avg_pixels = avg_by_mode(image); */
-    /* int avg_pixels = mode_of_mode(image); */
-
-    /* printf("Avg of pixels: %lf \n", avg_pixels); */
-    /* printf("Avg of pixels: %d \n", avg_pixels); */
-
-    /* threshold(image, image, avg_pixels, 255, THRESH_BINARY_INV); */
-
+    apply_blur(image);
+    apply_canny(image);
+    /* dilation(image); */
     /* erosion(image); */
 
-    apply_blur(image);
     imshow("Output", image);
     /* imwrite(OUTPUT_IMAG, image); */
     waitKey(0);
@@ -216,3 +222,8 @@ int main(int argc, char **argv) {
     return 0;
 
 }
+
+
+/* BOOST_PYTHON_MODULE(CppProject) { */
+/*      py::def("get_binary_image", binary_image); */
+/* } */
