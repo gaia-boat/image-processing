@@ -1,4 +1,3 @@
-/* #include <boost/python.hpp> */
 #include <opencv2/opencv.hpp>
 #include <stdio.h>
 #include <string>
@@ -6,48 +5,14 @@
 #include <fstream>
 /* #include <raspicam/raspicam.h> */
 
-#define IMAGE_PATH "./data/plastic-trash.jpg"
-#define OUTPUT_IMAG "./data/THRESH_BINARY_INV/trash_on_water_no_sky/binary_by_mode_of_row_mode_no_erosion.png"
-#define IMAGE_HEIGHT 360
-#define IMAGE_WIDTH 420
+#define IMAGE_PATH "./data/trash_on_water.jpg"
+#define OUTPUT_IMAG "./data/one_trash_cont.jpg"
+#define IMAGE_HEIGHT 560 
+#define IMAGE_WIDTH 780 
 #define MAX_PIXEL_VAL 255
 
 using namespace cv;
 using namespace std;
-
-/* namespace py = boost::python; */
-
-
-int mode(Mat image) {
-    // get the highest value on the list
-    int max = MAX_PIXEL_VAL;
-
-    int t = max + 1;
-    int *count;
-
-    int height = image.size().height;
-    int width = image.size().width;
-
-    count = (int *)calloc(t, sizeof(int));
-
-
-    for(int i = 0; i < width; i++) {
-        int pixel = (int)image.at<uchar>(1, i);
-        count[pixel]++;
-    }
-
-    int mode = 0;
-    int k = count[0];
-
-    for(int i = 1; i < t; i++) {
-        if(count[i] > k) {
-            k = count[i];
-            mode = i;
-        }
-    }
-
-    return mode;
-}
 
 void write_bin(Mat image) {
     ofstream filebin;
@@ -65,90 +30,6 @@ void write_bin(Mat image) {
     }
 
     filebin.close();
-
-}
-
-array<int, IMAGE_HEIGHT> array_of_mode(Mat image) {
-    array<int, IMAGE_HEIGHT> rows_mode;
-
-    for(int i = 0; i < image.rows; i++) {
-        int mode_val;
-        mode_val = mode(image.row(i));
-
-        rows_mode[i] = mode_val;
-    }
-
-    return rows_mode;
-}
-
-double avg_by_mode(Mat image) {
-
-    array<int, IMAGE_HEIGHT> rows_mode;
-    rows_mode = array_of_mode(image);
-
-    double sum_pixels = 0.0;
-
-    for(int i = 0; i < rows_mode.size(); i++) {
-        sum_pixels += rows_mode[i];
-
-    }
-
-    double avg_pixels = sum_pixels / rows_mode.size();
-
-    return avg_pixels;
-}
-
-double avg_by_mean(Mat image) {
-
-    array<int, IMAGE_HEIGHT> rows_mode;
-    double sum_pixels = 0.0;
-
-    const int height = image.size().height;
-    const int width = image.size().width;
-
-    for(int i = 0; i < image.rows; i++) {
-        for(int j = 0; j < image.cols; j++) {
-            sum_pixels += (int)image.at<uchar>(i, j);
-        }
-
-    }
-
-    double avg_pixels = sum_pixels / (height * width);
-
-    return avg_pixels;
-
-}
-
-int mode_of_mode(Mat image) {
-
-    array<int, IMAGE_HEIGHT> rows_mode;
-    rows_mode = array_of_mode(image);
-
-    int max = MAX_PIXEL_VAL;
-
-    int t = max + 1;
-    int *count;
-    count = (int *)calloc(t, sizeof(int));
-
-
-    for(int i = 0; i < rows_mode.size(); i++) {
-        int val = rows_mode[i];
-        count[val]++;
-    }
-
-    int mode = 0;
-    int k = count[0];
-
-    for(int i = 1; i < t; i++) {
-        if(count[i] > k) {
-            k = count[i];
-            mode = i;
-        }
-    }
-
-    free(count);
-
-    return mode;
 
 }
 
@@ -185,7 +66,7 @@ void dilation(Mat image){
 
 void apply_blur(Mat image){
 
-    Size k(7, 7);
+    Size k(15, 15);
 
     GaussianBlur(image, image, k, 0);
 }
@@ -207,23 +88,35 @@ int main(int argc, char **argv) {
 
     const int height = image.size().height; const int width = image.size().width;
 
-    printf("Height: %d\n", height);
-    printf("Width: %d\n", width);
-
     apply_blur(image);
-    apply_canny(image);
-    /* dilation(image); */
-    /* erosion(image); */
 
-    imshow("Output", image);
-    /* imwrite(OUTPUT_IMAG, image); */
+    apply_canny(image);
+    dilation(image);
+    erosion(image);
+
+    RNG rng(12345);
+
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchy;
+
+    findContours( image, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+    Mat drawing = Mat::zeros( image.size(), CV_8UC3 );
+
+    for( int i = 0; i< contours.size(); i++ )
+    {
+        double area = contourArea(contours[i]);
+        if(area > 300.00) {
+            printf("%lf\n", area);
+            Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+            drawContours( drawing, contours, i, color, 1, 1, hierarchy, 0, Point() );
+        }
+    }
+
+
+    imshow("Contours", drawing);
+    /* imwrite("drawing.png", drawing); */
     waitKey(0);
 
     return 0;
 
 }
-
-
-/* BOOST_PYTHON_MODULE(CppProject) { */
-/*      py::def("get_binary_image", binary_image); */
-/* } */
