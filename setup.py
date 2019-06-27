@@ -33,21 +33,16 @@ CLASSIFIERS = [
 ]
 
 setup(  # pragma: no cover
-    name='',
-    description="",  # nopep8
-    url='',
+    name='gaia-image-processing',
+    description="Image processing module for the gaia boat.",  # nopep8
+    url='https://github.com/gaia-boat/image-processing',
     long_description=codecs.open('README.md', 'rb', 'utf8').read(),
     long_description_content_type='text/markdown',
     author='Gaia boat group',
-    author_email='andre.filho001@outlook.com',
+    author_email='',
     version=codecs.open('VERSION.txt', 'rb', 'utf8').read(),
     packages=find_packages(),
     keywords=['gaia', 'boat', 'pi2'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'ezissue = ezissue.ezissue:main'
-    #     ]
-    # },
     install_requires=REQUIREMENTS,
     license='GNU',
     classifiers=CLASSIFIERS,
