@@ -3,6 +3,6 @@
 mkdir -p bin
 mkdir -p build
 
-cmake -S . -B ./build
+cmake -H. -B./build
 
 make -C ./build/
