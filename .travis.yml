@@ -8,7 +8,7 @@ install:
 
 script:
 - pytest tests/ -v
-- pycodestyle image_processing/*
+- pycodestyle gaia_image_processing/*
 
 after_script:
 - py.test --cov-report term --cov=. --ignore=tests/* --cov-report=html
