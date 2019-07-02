@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <stdio.h>
+#include <Python.h> 
 
 #define IMAGE_PATH "./data/webcam.jpg"
 #define OUTPUT_IMAG "./data/one_trash_cont.jpg"
@@ -38,7 +39,6 @@ void dilation(Mat &image)
 
 void erosion(Mat &image)
 {
-    int erosion_size = 1;
     Mat element = getStructuringElement( MORPH_RECT,
             Size( 3, 3 ));
     erode(image, image, element);
@@ -47,7 +47,7 @@ void erosion(Mat &image)
 
 void get_rotated_recs(vector<RotatedRect> &minRect, vector<vector<Point>> &contours)
 {
-    for(int i = 0; i < contours.size(); i++)
+    for(size_t i = 0; i < contours.size(); i++)
     {
         minRect[i] = minAreaRect(Mat(contours[i]));
     }
@@ -63,7 +63,7 @@ void draw_objects(Mat &dest_image, vector<vector<Point>> &contours, vector<Rotat
 {
     RNG rng(63);
 
-    for(int i = 0; i < contours.size(); i++)
+    for(size_t  i = 0; i < contours.size(); i++)
     {
         /* Generate random colour for each contour and its rectangle */
         Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
@@ -86,13 +86,12 @@ void draw_objects(Mat &dest_image, vector<vector<Point>> &contours, vector<Rotat
 
 double pixel_to_cm(double pixel)
 {
-
     return pixel/CM_PER_PIXEL;
 }
 
-int check_for_obstacle(vector<vector<Point>> &contours, vector<RotatedRect> &minRect)
+long check_for_obstacle(vector<vector<Point>> &contours, vector<RotatedRect> &minRect)
 {
-    for(int i = 0; i < contours.size(); i++)
+    for(size_t i = 0; i < contours.size(); i++)
     {
         Size2f recSize = Size2f();
         recSize = minRect[i].size;
@@ -107,11 +106,11 @@ int check_for_obstacle(vector<vector<Point>> &contours, vector<RotatedRect> &min
             printf(">>>>>> Obstacle witdh:  %.2lf cm <<<<<<\n", px_width);
             return 1;
         }
-        return 0;
     }
+	return 0;
 }
 
-int capture()
+long capture()
 {
 
     VideoCapture cap;
@@ -119,7 +118,7 @@ int capture()
     if(!cap.open(2))
         exit(1);
 
-    for(int i = 0; i < 10; i++)
+    for(;;)
     {
         Mat frame;
         Mat orgFrame;
@@ -167,25 +166,41 @@ int capture()
 
         obs = check_for_obstacle(contours, minRect);
 
-        if(obs){
-            return obs;
-        }
-
+        /* if(obs){ */
+        /*     return obs; */
+        /* } */
 
         imshow("Original Image", orgFrame);
         imshow("Contours", drawing);
 
-        waitKey(0);
-        /* if(waitKey(10) == 27) */
-        /*     break; // stop capturing by pressing ESC */
+        /* waitKey(0); */
+        if(waitKey(10) == 27)
+            break; // stop capturing by pressing ESC
     }
 
     return 0;
 }
 
+static PyObject * capture_wrapper(PyObject *self, PyObject *args) {
+	long result;
+	result = capture();
 
-int main() {
-    if(capture())
-        return 1;
+	return PyLong_FromLong(result);
+}
 
+static PyMethodDef ImageProcessingMethods[] = {
+	{"capture", capture_wrapper, METH_VARARGS, "Capture image and get obstacles"},
+	{NULL, NULL, 0, NULL}
+};
+
+static struct PyModuleDef image_processing_module = {
+	PyModuleDef_HEAD_INIT,
+	"image_processing",
+	NULL,
+	-1,
+	ImageProcessingMethods
+};
+
+PyMODINIT_FUNC PyInit_image_processing(void) {
+	return PyModule_Create(&image_processing_module);
 }
