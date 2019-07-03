@@ -16,9 +16,10 @@ opencv_libs =  ["opencv_stitching", "opencv_aruco", "opencv_bgsegm",
                 "opencv_photo", "opencv_imgproc", "opencv_core"]
 
 module = Extension("image_processing",
-                   include_dirs=['/usr/local/include/opencv4/', '/usr/local/include/opencv4/opencv'],
+                   include_dirs=['include/', '/usr/local/include/opencv4/',
+                                 '/usr/local/include/opencv4/opencv'],
                    libraries = opencv_libs,
                    library_dirs=['/usr/local/lib'],
-                   sources=['src/image_processing.cpp'])
+                   sources=['src/image_processing.cpp', 'src/morph_transformations.cpp', 'src/objects.cpp', 'src/drawing.cpp'])
 
 setup(name='image_processing', ext_modules=[module])
