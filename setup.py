@@ -3,7 +3,7 @@ import codecs
 from os import path
 from setuptools import setup
 from setuptools import find_packages
-from pip._internal.req import parse_requirements
+from pip.req import parse_requirements
 from distutils.core import setup, Extension
 
 
@@ -25,7 +25,8 @@ module = Extension("image_processing",
                                  '/usr/local/include/opencv4/opencv'],
                    libraries = opencv_libs,
                    library_dirs=['/usr/local/lib'],
-                   sources=['src/image_processing.cpp', 'src/morph_transformations.cpp', 'src/objects.cpp', 'src/drawing.cpp'])
+                   sources=['src/image_processing.cpp', 'src/morph_transformations.cpp',
+                            'src/objects.cpp', 'src/drawing.cpp'])
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 INSTALL_REQS = parse_requirements('requirements.txt', session='hack')
