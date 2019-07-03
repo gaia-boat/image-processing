@@ -1,10 +1,21 @@
-language: python
+language: 
+  - python
+  - cpp
 
 python:
-- '3.5'
+- '3.6'
 
+before_install:
+  - |
+    mkdir -p ~/tmp
+    wget -P ~/tmp https://github.com/Kitware/CMake/releases/download/v3.15.0-rc3/cmake-3.15.0-rc3.tar.gz
+    tar -xzf ~/tmp/cmake-3.15.0-rc3.tar.gz -C ~/tmp
+    cmake ~/tmp/cmake-3.15.0-rc3 -B~/tmp/cmake-3.15.0-rc3
+    make -C ~/tmp/cmake-3.15.0-rc3
+    sudo make install -C ~/tmp/cmake-3.15.0-rc3
 install:
 - pip install -r dev-requirements.txt
+- pip install --upgrade pip
 
 script:
 - pytest tests/ -v

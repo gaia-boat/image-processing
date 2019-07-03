@@ -3,7 +3,7 @@ import codecs
 from os import path
 from setuptools import setup
 from setuptools import find_packages
-from pip.req import parse_requirements
+from pip._internal.req import parse_requirements
 from distutils.core import setup, Extension
 
 

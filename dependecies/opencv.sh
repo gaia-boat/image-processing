@@ -31,6 +31,8 @@ apt-get install -y python-dev python-numpy \
                 libpng-dev libtiff-dev \
                 libjasper-dev libdc1394-22-dev
 
+cmake --version
+
 echo "Clonning opencv core repository"
 git clone https://github.com/opencv/opencv.git $OPENCV_DIR
 
