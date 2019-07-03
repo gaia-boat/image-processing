@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <Python.h> 
 
-#define IMAGE_PATH "./data/webcam.jpg"
-#define OUTPUT_IMAG "./data/one_trash_cont.jpg"
 #define IMAGE_HEIGHT 560
 #define IMAGE_WIDTH 720
 #define MAX_PIXEL_VAL 255
