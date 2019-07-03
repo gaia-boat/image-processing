@@ -3,15 +3,30 @@ import codecs
 from os import path
 from setuptools import setup
 from setuptools import find_packages
-from pip._internal.req import parse_requirements
+from pip.req import parse_requirements
+from distutils.core import setup, Extension
 
-here = path.abspath(path.dirname(__file__))
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
-    README = readme.read()
+opencv_libs =  ["opencv_stitching", "opencv_aruco", "opencv_bgsegm",
+                "opencv_bioinspired", "opencv_ccalib", "opencv_dnn_objdetect",
+                "opencv_dpm", "opencv_face", "opencv_freetype", "opencv_fuzzy", "opencv_hfs", "opencv_img_hash", "opencv_line_descriptor",
+                "opencv_quality", "opencv_reg", "opencv_rgbd", "opencv_saliency",
+                "opencv_stereo", "opencv_structured_light", "opencv_phase_unwrapping",
+                "opencv_superres", "opencv_optflow", "opencv_surface_matching",
+                "opencv_tracking", "opencv_datasets", "opencv_text", "opencv_dnn",
+                "opencv_plot", "opencv_videostab", "opencv_video", "opencv_xfeatures2d",
+                "opencv_shape", "opencv_ml", "opencv_ximgproc", "opencv_xobjdetect",
+                "opencv_objdetect", "opencv_calib3d", "opencv_features2d", "opencv_highgui",
+                "opencv_videoio", "opencv_imgcodecs", "opencv_flann", "opencv_xphoto",
+                "opencv_photo", "opencv_imgproc", "opencv_core"]
 
-# allowes setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+module = Extension("image_processing",
+                   include_dirs=['include/', '/usr/local/include/opencv4/',
+                                 '/usr/local/include/opencv4/opencv'],
+                   libraries = opencv_libs,
+                   library_dirs=['/usr/local/lib'],
+                   sources=['src/image_processing.cpp', 'src/morph_transformations.cpp',
+                            'src/objects.cpp', 'src/drawing.cpp'])
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 INSTALL_REQS = parse_requirements('requirements.txt', session='hack')
@@ -39,9 +54,9 @@ setup(  # pragma: no cover
     long_description=codecs.open('README.md', 'rb', 'utf8').read(),
     long_description_content_type='text/markdown',
     version=codecs.open('VERSION.txt', 'rb', 'utf8').read(),
-    packages=find_packages(),
     keywords=['gaia', 'boat', 'pi2'],
     install_requires=REQUIREMENTS,
     license='GNU',
     classifiers=CLASSIFIERS,
+    ext_modules=[module],
 )
