@@ -19,7 +19,6 @@ long capture() {
     for(int i = 0; i < CICLES ; i++) {
         Mat frame;
         Mat org_frame;
-        Mat dest;
 
         cap.read(frame);
 
@@ -53,20 +52,26 @@ long capture() {
 
         /* Get the rotated rectangle of each contour */
         vector<RotatedRect> minRect(contours.size());
-        get_rotated_recs(minRect, contours);
 
         /* Image to draw the contours and rectangles */
         Mat drawing = Mat::zeros( frame.size(), CV_8UC3 );
 
-        draw_objects(org_frame, contours, minRect);
-        draw_objects(drawing, contours, minRect);
+        /* Obstacle Flag */
         int obs = 0;
 
-        if(i > MIN_CICLES) {
-            obs = check_for_obstacle(contours, minRect);
+        for(size_t i = 0; i < contours.size(); i++) {
+            get_rotated_recs(minRect, contours, i);
+
+            if(i > MIN_CICLES) {
+                obs = check_for_obstacle(contours, minRect, i);
+            }
+
+            draw_objects(org_frame, contours, minRect, i);
+            draw_objects(drawing, contours, minRect, i);
+
         }
 
-        if(obs){
+        if(obs) {
             return obs;
         }
 
