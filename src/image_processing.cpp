@@ -4,22 +4,23 @@
 #include "objects.h"
 #include "drawing.h"
 
+#define CICLES 10
+#define MIN_CICLES 5
+
 using namespace cv;
 using namespace std;
 
-long capture()
-{
-
+long capture() {
     VideoCapture cap;
 
     if(!cap.open(2))
         exit(1);
 
-    for(;;)
-    {
+    for(int i = 0; i < CICLES ; i++) {
         Mat frame;
-        Mat orgFrame;
+        Mat org_frame;
         Mat dest;
+
         cap.read(frame);
 
         if(frame.empty())
@@ -28,7 +29,7 @@ long capture()
         Size img_size(IMAGE_WIDTH, IMAGE_HEIGHT);
         resize(frame, frame, img_size);
 
-        orgFrame = frame.clone();
+        org_frame = frame.clone();
 
         /* GrayScale */
         cvtColor(frame, frame, COLOR_BGR2GRAY);
@@ -57,20 +58,21 @@ long capture()
         /* Image to draw the contours and rectangles */
         Mat drawing = Mat::zeros( frame.size(), CV_8UC3 );
 
-        draw_objects(orgFrame, contours, minRect);
+        draw_objects(org_frame, contours, minRect);
         draw_objects(drawing, contours, minRect);
         int obs = 0;
 
-        obs = check_for_obstacle(contours, minRect);
+        if(i > MIN_CICLES) {
+            obs = check_for_obstacle(contours, minRect);
+        }
 
-        /* if(obs){ */
-        /*     return obs; */
-        /* } */
+        if(obs){
+            return obs;
+        }
 
-        imshow("Original Image", orgFrame);
+        imshow("Original Image", org_frame);
         imshow("Contours", drawing);
 
-        /* waitKey(0); */
         if(waitKey(10) == 27)
             break; // stop capturing by pressing ESC
     }
@@ -80,6 +82,7 @@ long capture()
 
 static PyObject * capture_wrapper(PyObject *self, PyObject *args) {
 	long result;
+
 	result = capture();
 
 	return PyLong_FromLong(result);
@@ -103,6 +106,7 @@ PyMODINIT_FUNC PyInit_image_processing(void) {
 }
 
 int main() {
+
     if(capture())
         return 1;
 
