@@ -16,7 +16,8 @@ long capture() {
     if(!cap.open(2))
         exit(1);
 
-    for(int i = 0; i < CICLES ; i++) {
+    /* for(int i = 0; i < CICLES ; i++) { */
+    for(; ; ) {
         Mat frame;
         Mat org_frame;
 
@@ -59,15 +60,15 @@ long capture() {
         /* Obstacle Flag */
         int obs = 0;
 
-        for(size_t i = 0; i < contours.size(); i++) {
-            get_rotated_recs(minRect, contours, i);
+        for(size_t j = 0; j < contours.size(); j++) {
+            get_rotated_recs(minRect, contours, j);
 
-            if(i > MIN_CICLES) {
-                obs = check_for_obstacle(contours, minRect, i);
-            }
+            /* if(i > MIN_CICLES) { */
+            /*     obs = check_for_obstacle(contours, minRect, j); */
+            /* } */
 
-            draw_objects(org_frame, contours, minRect, i);
-            draw_objects(drawing, contours, minRect, i);
+            draw_objects(org_frame, contours, minRect, j);
+            draw_objects(drawing, contours, minRect, j);
 
         }
 

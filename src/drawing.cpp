@@ -2,7 +2,7 @@
 
 void draw_objects(Mat &dest_image, vector<vector<Point>> &contours, 
                   vector<RotatedRect> &minRect, size_t i) {
-    RNG rng(63);
+    RNG rng(rand());
 
     /* Generate random colour for each contour and its rectangle */
     Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
