@@ -1,8 +1,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
 #include <stdio.h>
+#include <Python.h>
 
-#define CAMERA_DEVICE 0
+#define CAMERA_DEVICE 2
 #define IMAGE_WIDTH 200
 #define IMAGE_HEIGHT 200
 
@@ -10,6 +11,8 @@
 #define WIDTH_THRESHOLD 73
 #define CM_HEIGHT_SCALE 0.64 
 #define CM_WIDTH_SCALE 0.89
+#define CICLES 10
+#define MIN_CICLES 5
 
 using namespace std;
 using namespace cv;
@@ -19,7 +22,7 @@ double pixel_to_cm(double px, double cm_scale) {
 	return px * cm_scale;
 }
 
-int capture() {
+long capture() {
     float conf_threshold = 0.4;
 
     string modelcfg = "ssd-model/ssd_mobilenet_v2_coco_2018_03_29.pbtxt";
@@ -94,4 +97,31 @@ int capture() {
 
 int main() {
     capture();
+
+    return 0;
+}
+
+static PyObject *capture_wrapper(PyObject *self, PyObject *args) {
+    long result;
+
+    result = capture();
+
+    return PyLong_FromLong(result);
+}
+
+static PyMethodDef ImageProcessingMethods[] = {
+    {"capture", capture_wrapper, METH_VARARGS, "Capture image and identify obstacles"},
+    {NULL, NULL, 0, NULL}
+};
+
+static struct PyModuleDef image_processing_module = {
+    PyModuleDef_HEAD_INIT,
+    "image_processing",
+    NULL,
+    -1,
+    ImageProcessingMethods
+};
+
+PyMODINIT_FUNC PyInit_image_processing(void) {
+    return PyModule_Create(&image_processing_module);
 }
