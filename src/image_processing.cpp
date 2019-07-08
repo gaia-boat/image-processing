@@ -2,15 +2,24 @@
 #include <opencv2/dnn.hpp>
 #include <stdio.h>
 
-#define CAMERA_DEVICE 2
+#define CAMERA_DEVICE 0
 #define IMAGE_WIDTH 200
 #define IMAGE_HEIGHT 200
+
+#define HEIGHT_THRESHOLD 73
+#define WIDTH_THRESHOLD 73
+#define CM_HEIGHT_SCALE 0.64 
+#define CM_WIDTH_SCALE 0.89
 
 using namespace std;
 using namespace cv;
 using namespace cv::dnn;
 
-int main() {
+double pixel_to_cm(double px, double cm_scale) {
+	return px * cm_scale;
+}
+
+int capture() {
     float conf_threshold = 0.4;
 
     string modelcfg = "ssd-model/ssd_mobilenet_v2_coco_2018_03_29.pbtxt";
@@ -57,8 +66,19 @@ int main() {
                 int yRightTop = outs.at<float>(id_yrt) * frame.rows;
 
                 Rect rectB(Point(xLeftBottom, yLeftBottom), Point(xRightTop, yRightTop));
+				
+				double heightCm = pixel_to_cm(rectB.height, CM_HEIGHT_SCALE);
+				double widthCm = pixel_to_cm(rectB.width, CM_WIDTH_SCALE);
 
-                rectangle(frame, rectB, Scalar(0, 255, 0));
+				Scalar green(0, 255, 0);
+				Scalar red(0, 0, 255);
+
+                if(heightCm > HEIGHT_THRESHOLD || widthCm > WIDTH_THRESHOLD) {
+                    rectangle(frame, rectB, red);
+                }
+                else {
+                    rectangle(frame, rectB, green);
+                }
 
             }
 
@@ -70,4 +90,8 @@ int main() {
     }
 
     return 0;
+}
+
+int main() {
+    capture();
 }
