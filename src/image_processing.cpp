@@ -22,6 +22,20 @@ double pixel_to_cm(double px, double cm_scale) {
 	return px * cm_scale;
 }
 
+void start_camera(VideoCapture &cap, int camera_device) {
+    Mat r;
+
+    cap.open(camera_device);
+
+    if(!cap.isOpened()) {
+        exit(1);
+    }
+
+    /* Trash frames before start to capture */
+    for(int i = 0; i < MIN_CICLES; i++)
+        cap.read(r);
+}
+
 long capture() {
     float conf_threshold = 0.4;
 
@@ -31,11 +45,11 @@ long capture() {
     Net net = readNetFromTensorflow(modelweights, modelcfg);
 
     VideoCapture cap;
-    cap.open(CAMERA_DEVICE);
+    start_camera(cap, CAMERA_DEVICE);
 
     Mat frame;
 
-    for(;;) {
+    for(int i = 0; i < CICLES; i++) {
         Mat blob;
         Mat outs;
 
@@ -88,6 +102,7 @@ long capture() {
         }
 
         imshow("Objects", frame);
+        waitKey(0);
         if(waitKey(1) == 27)
             break;
     }
