@@ -10,6 +10,7 @@ add_executable( image_processing
                     src/morph_transformations.cpp 
                     src/objects.cpp 
                     src/drawing.cpp 
+                    src/ssd.cpp
                     
                 )
 target_link_libraries( image_processing ${OpenCV_LIBS} ${PYTHON_LIBRARIES} )
