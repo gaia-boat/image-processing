@@ -1,3 +1,5 @@
 build
 bin
 ssd-model
+dist
+*.egg-info

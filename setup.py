@@ -25,8 +25,7 @@ module = Extension("image_processing",
                                  '/usr/local/include/opencv4/opencv'],
                    libraries = opencv_libs,
                    library_dirs=['/usr/local/lib'],
-                   sources=['src/image_processing.cpp', 'src/morph_transformations.cpp',
-                            'src/objects.cpp', 'src/drawing.cpp'])
+                   sources=['src/image_processing.cpp'])
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 INSTALL_REQS = parse_requirements('requirements.txt', session='hack')
