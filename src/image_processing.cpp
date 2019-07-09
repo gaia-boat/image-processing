@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <Python.h>
 
-#define CAMERA_DEVICE 2
+#define CAMERA_DEVICE 0
 #define IMAGE_WIDTH 200
 #define IMAGE_HEIGHT 200
 
@@ -11,8 +11,8 @@
 #define WIDTH_THRESHOLD 73
 #define CM_HEIGHT_SCALE 0.64 
 #define CM_WIDTH_SCALE 0.89
-#define CICLES 10
-#define MIN_CICLES 5
+#define CICLES 1
+#define MIN_CICLES 3
 
 using namespace std;
 using namespace cv;
