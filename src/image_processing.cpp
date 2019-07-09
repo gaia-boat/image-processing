@@ -84,27 +84,17 @@ long capture() {
 
                 Rect rectB(Point(xLeftBottom, yLeftBottom), Point(xRightTop, yRightTop));
 				
-				double heightCm = pixel_to_cm(rectB.height, CM_HEIGHT_SCALE);
-				double widthCm = pixel_to_cm(rectB.width, CM_WIDTH_SCALE);
-
-				Scalar green(0, 255, 0);
-				Scalar red(0, 0, 255);
+                double heightCm = pixel_to_cm(rectB.height, CM_HEIGHT_SCALE);
+                double widthCm = pixel_to_cm(rectB.width, CM_WIDTH_SCALE);
 
                 if(heightCm > HEIGHT_THRESHOLD || widthCm > WIDTH_THRESHOLD) {
-                    rectangle(frame, rectB, red);
-                }
-                else {
-                    rectangle(frame, rectB, green);
-                }
 
+                    /* Obstacle detected */
+                    return 1;
+                }
             }
 
         }
-
-        imshow("Objects", frame);
-        waitKey(0);
-        if(waitKey(1) == 27)
-            break;
     }
 
     return 0;
