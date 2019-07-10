@@ -4,8 +4,8 @@
 #include <Python.h>
 
 #define CAMERA_DEVICE 2
-#define IMAGE_WIDTH 200
-#define IMAGE_HEIGHT 200
+#define IMAGE_WIDTH 800
+#define IMAGE_HEIGHT 800
 
 #define HEIGHT_THRESHOLD 73
 #define WIDTH_THRESHOLD 73
@@ -53,10 +53,15 @@ long capture() {
         for(int i = 0; i < detections; i++) {
 
             int id_conf[4] = {0, 0, i, 2};
+            int id_class[4] = {0, 0, i, 1};
+
 
             float confidence = (float)outs.at<float>(id_conf);
 
             if(confidence > conf_threshold) {
+
+                float class_id = (float)outs.at<float>(id_class);
+                cout << "Class: " << class_id << endl;
 
                 int id_xlb[4] = {0, 0, i, 3};
                 int id_ylb[4] = {0, 0, i, 4};
